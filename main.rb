@@ -10,19 +10,19 @@ INITIAL_POT_AMOUNT = 500
 
 helpers do
   def calculate_total(cards) # cards is [["H", "3"], ["D", "J"], ... ]
-    arr = cards.map{|element| element[1]}
+    arr = cards.map{|element| element[1]} # returned arr ["3", "J",...]
 
     total = 0
     arr.each do |a|
       if a == "A"
         total += 11
       else
-        total += a.to_i == 0 ? 10 : a.to_i
+        total += (a.to_i == 0 ? 10 : a.to_i)
       end
     end
 
     #correct for Aces
-    arr.select{|element| element == "A"}.count.times do
+    arr.select{|e| e == "A"}.count.times do
       break if total <= BLACKJACK_AMOUNT
       total -= 10
     end
@@ -78,7 +78,7 @@ end
 
 get '/' do
   if session[:player_name]
-    redirect '/game'
+    redirect '/bet'
   else
     redirect '/new_player'
   end
@@ -145,7 +145,7 @@ post '/game/player/hit' do
   if player_total == BLACKJACK_AMOUNT
     winner!("#{session[:player_name]} hit blackjack.")
   elsif player_total > BLACKJACK_AMOUNT
-    loser!("It looks like #{session[:player_name]} busted at #{player_total}.")
+    loser!("#{session[:player_name]} busted at #{player_total}.")
   end
 
   erb :game, layout: false
@@ -154,10 +154,10 @@ end
 post '/game/player/stay' do
   @success = "#{session[:player_name]} has chosen to stay."
   @show_hit_or_stay_buttons = false
-  redirect '/game/dealer'
+  redirect '/game/dealer/round'
 end
 
-get '/game/dealer' do
+get '/game/dealer/round' do
   session[:turn] = "dealer"
   @show_hit_or_stay_buttons = false
 
@@ -181,7 +181,7 @@ end
 
 post '/game/dealer/hit' do
   session[:dealer_cards] << session[:deck].pop
-  redirect '/game/dealer'
+  redirect '/game/dealer/round'
 end
 
 get '/game/compare' do
